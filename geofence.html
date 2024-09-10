@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Custom Geofence Checker</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAcEARwy22d2atZr5W31x9N90DBr_ZDF8U&libraries=geometry"></script>
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .input-container {
+        margin-bottom: 10px;
+      }
+      label {
+        display: inline-block;
+        width: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Geofence Checker</h2>
+    
+    <div class="input-container">
+      <label for="geofence-lat">Geofence Center Latitude:</label>
+      <input type="number" id="geofence-lat" step="0.0001">
+    </div>
+
+    <div class="input-container">
+      <label for="geofence-lng">Geofence Center Longitude:</label>
+      <input type="number" id="geofence-lng" step="0.0001">
+    </div>
+
+    <div class="input-container">
+      <label for="geofence-radius">Geofence Radius (meters):</label>
+      <input type="number" id="geofence-radius" value="50000">
+    </div>
+
+    <div class="input-container">
+      <label for="user-lat">User Latitude:</label>
+      <input type="number" id="user-lat" step="0.0001">
+    </div>
+
+    <div class="input-container">
+      <label for="user-lng">User Longitude:</label>
+      <input type="number" id="user-lng" step="0.0001">
+    </div>
+
+    <button onclick="checkGeofence()">Check Geofence</button>
+
+    <div id="map"></div>
+
+    <script>
+      function initMap() {
+        // Initialize the map with a default center
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: 20.5937, lng: 78.9629 }, // Centered on India
+          zoom: 5
+        });
+        return map;
+      }
+
+      function checkGeofence() {
+        var map = initMap();
+
+        // Get user inputs
+        var geofenceLat = parseFloat(document.getElementById('geofence-lat').value);
+        var geofenceLng = parseFloat(document.getElementById('geofence-lng').value);
+        var geofenceRadius = parseFloat(document.getElementById('geofence-radius').value);
+        var userLat = parseFloat(document.getElementById('user-lat').value);
+        var userLng = parseFloat(document.getElementById('user-lng').value);
+
+        // Define the geofence
+        var geofenceCircle = new google.maps.Circle({
+          strokeColor: '#FF0000',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#FF0000',
+          fillOpacity: 0.35,
+          map: map,
+          center: { lat: geofenceLat, lng: geofenceLng },
+          radius: geofenceRadius // Radius in meters
+        });
+
+        // Define the user's location
+        var userLocation = new google.maps.LatLng(userLat, userLng);
+
+        // Center the map to the geofence area
+        map.setCenter({ lat: geofenceLat, lng: geofenceLng });
+        map.setZoom(10);
+
+        // Check if the user is inside the geofence
+        if (isLocationInCircle(userLocation, geofenceCircle)) {
+          alert("You are inside the geofenced area!");
+        } else {
+          alert("You are outside the geofenced area!");
+        }
+      }
+
+      // Function to check if the location is inside the circle
+      function isLocationInCircle(location, circle) {
+        return google.maps.geometry.spherical.computeDistanceBetween(location, circle.getCenter()) <= circle.getRadius();
+      }
+    </script>
+  </body>
+</html>
